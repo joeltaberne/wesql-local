@@ -1,0 +1,51 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    environment:
+      - DEBUG=1
+      - SERVICES=s3
+    volumes:
+      - ./aws:/etc/localstack/init/ready.d
+    networks:
+      wesql_network:
+        aliases:
+          - wesql-storage.s3.localhost.localstack.cloud
+
+  wesql:
+    image: apecloud/wesql-server:8.0.35-0.1.0_beta2.37
+    restart: always
+    depends_on:
+      localstack:
+        condition: service_started
+    container_name: wesql
+    environment:
+      WESQL_DATA_VOLUME: /var/lib/mysql
+      WESQL_LOG_DIR: /var/log/wesql
+      WESQL_CLUSTER_MEMBER: 127.0.0.1:13306
+      WESQL_OBJECTSTORE_ACCESS_KEY: foo 
+      WESQL_OBJECTSTORE_SECRET_KEY: bar
+      WESQL_OBJECTSTORE_PROVIDER: aws
+      WESQL_OBJECTSTORE_REGION: us-east-1
+      WESQL_OBJECTSTORE_BUCKET: wesql-storage
+      WESQL_OBJECTSTORE_ENDPOINT: http://s3.localhost.localstack.cloud:4566
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wesql
+      MYSQL_PORT: 3306
+    networks:
+      - wesql_network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: wesql
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - wesql_network
+
+networks:
+  wesql_network:
+    driver: bridge
