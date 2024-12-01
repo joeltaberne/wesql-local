@@ -11,6 +11,6 @@ This project combines the power of LocalStack to mock AWS services (specifically
 1. Navigate to the root folder of the repository.
 2. Run docker compose up in your terminal.
 3. Wait approximately 30 seconds for the stack to initialize.
-4. Access PhpMyAdmin by visiting http://localhost:8080 in your web browser to manage the WeSQL server.
+4. Access PhpMyAdmin by visiting http://localhost:8080 in your web browser to manage the WeSQL server. Use "root" for user and password fields.
 
 Note: Data persistence is not supported with the LocalStack Community Edition. As a result, the WeSQL server's state cannot be saved once the stack is stopped.
